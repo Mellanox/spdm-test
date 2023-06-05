@@ -1,0 +1,32 @@
+From b4a4cae37d830365e1bd1162bb906805faf505e3 Mon Sep 17 00:00:00 2001
+From: Liming Sun <limings@nvidia.com>
+Date: Mon, 5 Jun 2023 12:08:57 -0400
+Subject: [PATCH] Fix a typo in libspdm_x509_compare_date_time()
+
+This commit fixes the checking of libspdm_consttime_is_mem_equal()
+in this function.
+
+Fixes #2091.
+
+Signed-off-by: Liming Sun <limings@nvidia.com>
+---
+ os_stub/cryptlib_mbedtls/pk/x509.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/os_stub/cryptlib_mbedtls/pk/x509.c b/os_stub/cryptlib_mbedtls/pk/x509.c
+index fe3bfae50..cc8155b34 100644
+--- a/os_stub/cryptlib_mbedtls/pk/x509.c
++++ b/os_stub/cryptlib_mbedtls/pk/x509.c
+@@ -1564,8 +1564,7 @@ int32_t libspdm_x509_compare_date_time(const void *date_time1, const void *date_
+     if (date_time1 == NULL || date_time2 == NULL) {
+         return -2;
+     }
+-    if (libspdm_consttime_is_mem_equal(date_time2, date_time1, sizeof(mbedtls_x509_time)) ==
+-        0) {
++    if (libspdm_consttime_is_mem_equal(date_time2, date_time1, sizeof(mbedtls_x509_time))) {
+         return 0;
+     }
+     if (libspdm_internal_x509_check_time((const mbedtls_x509_time *)date_time1,
+-- 
+2.25.0
+
