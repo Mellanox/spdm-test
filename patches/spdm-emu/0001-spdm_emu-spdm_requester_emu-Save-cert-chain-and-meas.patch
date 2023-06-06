@@ -1,0 +1,71 @@
+From f71ad31e03556db0c17cc85659a7fe4e14523cb6 Mon Sep 17 00:00:00 2001
+From: Liming Sun <limings@nvidia.com>
+Date: Tue, 6 Jun 2023 14:28:03 -0400
+Subject: [PATCH] spdm_emu/spdm_requester_emu: Save cert chain and measurement
+
+Signed-off-by: Liming Sun <limings@nvidia.com>
+---
+ libspdm                                                   | 2 +-
+ .../spdm_requester_emu/spdm_requester_authentication.c    | 8 ++++++++
+ spdm_emu/spdm_requester_emu/spdm_requester_measurement.c  | 5 +++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/libspdm b/libspdm
+index 6684f43..9725b25 160000
+--- a/libspdm
++++ b/libspdm
+@@ -1 +1 @@
+-Subproject commit 6684f43117784b12e25e665df65d1d122540f11f
++Subproject commit 9725b25b29e1a46b7b9462404e0b16ddaa6cbec7
+diff --git a/spdm_emu/spdm_requester_emu/spdm_requester_authentication.c b/spdm_emu/spdm_requester_emu/spdm_requester_authentication.c
+index a67dab2..9925fae 100644
+--- a/spdm_emu/spdm_requester_emu/spdm_requester_authentication.c
++++ b/spdm_emu/spdm_requester_emu/spdm_requester_authentication.c
+@@ -134,6 +134,7 @@ libspdm_return_t do_authentication_via_spdm(void)
+     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
+     size_t cert_chain_size;
+     uint8_t cert_chain[LIBSPDM_MAX_CERT_CHAIN_SIZE];
++    char cert_chain_name[] = "device_cert_chain_0.bin";
+ 
+     spdm_context = m_spdm_context;
+ 
+@@ -149,6 +150,13 @@ libspdm_return_t do_authentication_via_spdm(void)
+     if (LIBSPDM_STATUS_IS_ERROR(status)) {
+         return status;
+     }
++
++    cert_chain_name[18] = m_use_slot_id + '0';
++    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "write file - %s\n", cert_chain_name));
++    libspdm_write_output_file (cert_chain_name,
++                               cert_chain,
++                               cert_chain_size);
++
+     return LIBSPDM_STATUS_SUCCESS;
+ }
+ 
+diff --git a/spdm_emu/spdm_requester_emu/spdm_requester_measurement.c b/spdm_emu/spdm_requester_emu/spdm_requester_measurement.c
+index 56c6337..0118e2d 100644
+--- a/spdm_emu/spdm_requester_emu/spdm_requester_measurement.c
++++ b/spdm_emu/spdm_requester_emu/spdm_requester_measurement.c
+@@ -24,6 +24,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
+     uint8_t received_number_of_block;
+     uint32_t measurement_record_length;
+     uint8_t measurement_record[LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE];
++    char measurement_name[] = "device_measurement.bin";
+     uint8_t index;
+     uint8_t request_attribute;
+ 
+@@ -86,6 +87,10 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
+         }
+     }
+ 
++    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "write file - %s\n", measurement_name));
++    libspdm_write_output_file (measurement_name,
++                               measurement_record, measurement_record_length);
++
+     return LIBSPDM_STATUS_SUCCESS;
+ }
+ 
+-- 
+2.30.1
+

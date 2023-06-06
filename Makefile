@@ -8,16 +8,17 @@
 all: kmod spdm-emu spdm-proxy
 
 CFLAGS = -Ilib -Wall
+PSC_LIB = lib/libpsc_mailbox.a
 
 kmod:
 	cd kmod; make -C /lib/modules/$$(uname -r)/build M=$$PWD modules
 
-spdm-proxy: spdm-proxy/spdm-proxy.c lib/libpsc_mailbox.a
+spdm-proxy: spdm-proxy/spdm-proxy.c $(PSC_LIB)
 	$(CC) $(CFLAGS) $^ -o spdm-proxy/$@
 
-lib/libpsc_mailbox.a : lib/psc_mailbox.c
+$(PSC_LIB) : lib/psc_mailbox.c
 	$(CC) $(CFLAGS) -c lib/psc_mailbox.c -o lib/psc_mailbox.o
-	$(AR) rcs lib/libpsc_mailbox.a lib/psc_mailbox.o
+	$(AR) rcs $(PSC_LIB) lib/psc_mailbox.o
 
 spdm-emu:
 	cd spdm-emu; mkdir build; cd build; \
@@ -31,13 +32,15 @@ spdm-emu:
 	    fi
 
 patches:
+	cd spdm-emu; \
+	  for i in ../patches/spdm-emu/*; do git am $$i; done
 	cd spdm-emu/libspdm; \
 	  for i in ../../patches/libspdm/*; do git am $$i; done
 
 run:
 	pkill spdm-proxy || true
 	./spdm-proxy/spdm-proxy &
-	cd spdm-emu/build/bin; ./spdm_requester_emu
+	cd spdm-emu/build/bin; ./spdm_requester_emu --meas_op ALL
 
 clean:
 	$(RM) spdm-proxy/spdm-proxy lib/*.o lib/*.a *.o

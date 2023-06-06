@@ -33,9 +33,6 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
 
 > make patches  
 
- Only one patch is available which has been posted to upstream libspdm
- repo. 
-
 ## Build
 
 > make  
@@ -49,8 +46,15 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
  Note: Load kmod/mlxbf-mmio.ko first if Linux kernel-lockdown is enabled.
 
  Expected output example:  
+> ...  
+ write file - device_cert_chain_0.bin  
  ...  
- !!! verify_measurement_signature - PASS !!!
+ !!! verify_measurement_signature - PASS !!!  
+ write file - device_measurement.bin  
+ ...  
+
+ device_cert_chain_0.bin & device_measurement.bin are located under
+ spdm-emu/build/bin/
 
 ## CORIM/COMID Verification
 > TBD
