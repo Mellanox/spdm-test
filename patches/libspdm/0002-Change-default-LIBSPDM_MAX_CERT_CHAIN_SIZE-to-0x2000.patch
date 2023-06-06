@@ -1,0 +1,26 @@
+From f44104f2b922520008112e625fea00a0920f3fe5 Mon Sep 17 00:00:00 2001
+From: Liming Sun <limings@nvidia.com>
+Date: Tue, 6 Jun 2023 21:04:12 +0000
+Subject: [PATCH] Change default LIBSPDM_MAX_CERT_CHAIN_SIZE to 0x2000
+
+Signed-off-by: Liming Sun <limings@nvidia.com>
+---
+ include/library/spdm_lib_config.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/library/spdm_lib_config.h b/include/library/spdm_lib_config.h
+index f210252c1..0bbdef516 100644
+--- a/include/library/spdm_lib_config.h
++++ b/include/library/spdm_lib_config.h
+@@ -63,7 +63,7 @@
+  * libspdm context.
+  */
+ #ifndef LIBSPDM_MAX_CERT_CHAIN_SIZE
+-#define LIBSPDM_MAX_CERT_CHAIN_SIZE 0x1000
++#define LIBSPDM_MAX_CERT_CHAIN_SIZE 0x2000
+ #endif
+ #ifndef LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE
+ #define LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE 0x1000
+-- 
+2.34.1
+

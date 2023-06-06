@@ -57,4 +57,4 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
  spdm-emu/build/bin/
 
 ## CORIM/COMID Verification
-> TBD
+> TBD (Use device_measurement.bin to verify against the corim/comid manifests.)
