@@ -205,7 +205,7 @@ bool send_platform_data(const int socket, uint32_t command,
                         const uint8_t *buffer, uint32_t size)
 {
     bool result;
-    uint32_t request, transport_type;
+    uint32_t request;
 
     request = command;
     result = write_data32(socket, request);
@@ -228,8 +228,9 @@ bool send_platform_data(const int socket, uint32_t command,
 
 bool platform_server(const int socket)
 {
-    uint32_t command, size;
     uint8_t buffer[0x1200 + 64];
+    uint32_t command, size;
+    uint16_t context = 0;
     bool result;
 
     while (true) {
@@ -282,13 +283,15 @@ bool platform_server(const int socket)
             return true;
 
         case SOCKET_SPDM_COMMAND_NORMAL:
-            result = psc_mailbox_send_msg(PSC_MBOX_SPDM_OPCODE, buffer, size);
+            result = psc_mailbox_send_msg(PSC_MBOX_SPDM_OPCODE, context, buffer,
+                                          size);
             if (!result) {
                 printf("psc_mailbox_send_msg failed\n");
                 return true;
             }
             size = sizeof(buffer);
-            result = psc_mailbox_recv_msg(PSC_MBOX_SPDM_OPCODE, buffer, &size);
+            result = psc_mailbox_recv_msg(PSC_MBOX_SPDM_OPCODE, &context, buffer,
+                                          &size);
             if (!result || !size) {
                 printf("psc_mailbox_recv_msg failed\n");
                 return true;

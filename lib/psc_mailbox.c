@@ -13,6 +13,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "psc_mailbox.h"
 
 #define PSC_MBOX_BASE       0x12060000
 #define PSC_MBOX_EXT_CTRL   0x4
@@ -121,17 +122,16 @@ static inline bool psc_mailbox_out_valid(void)
     return (psc_ctrl & PSC_MBOX_PSC_CTRL_OUT_VALID_MASK) ? true : false;
 }
 
-/**
- * @brief send mailbox message
+/*
+ * Send mailbox message
  *
- * This API can send a long message in blocks. Each block has the following
- * format:
- *   word0:    opcode
- *   word1:    more flag (1B) + length in bytes (1B) + offset in bytes (2B)
- *   word2~15: data
+ * This API sends a large message in segments with header format
+ * psc_mailbox_seg_hdr_t in each one.
  */
-bool psc_mailbox_send_msg(uint32_t opcode, const uint8_t *buf, uint32_t len)
+bool psc_mailbox_send_msg(uint32_t opcode, uint16_t context_id,
+                          const uint8_t *buf, uint32_t len)
 {
+    psc_mailbox_seg_hdr_t hdr;
     bool status = false;
 
     if ((NULL != buf) && (len > 0U)) {
@@ -162,13 +162,16 @@ bool psc_mailbox_send_msg(uint32_t opcode, const uint8_t *buf, uint32_t len)
             psc_mailbox_writel(opcode, PSC_MBOX_IN_OFF);
 
             /* word1: more_data(1B) + cur_len(1B) + offset(2B) */
+            hdr.words[1] = 0U;
+            hdr.ctx_id = (uint8_t)context_id;
             cur_len = (remaining > (MBOX_BUF_NWORDS - 2U) * 4U) ?
                 ((MBOX_BUF_NWORDS - 2U) * 4U) : remaining;
-            data = ((cur_len & 0xFF) << 16U) | ((len - remaining) & 0xFFFFU);
+            hdr.cur_len = cur_len & 0xFFU;
+            hdr.offset = (len - remaining) & 0xFFFFU;
             if (cur_len != remaining) {
-                data |= (0x1U << 24);
+                hdr.more = 0x1U;
             }
-            psc_mailbox_writel(data, PSC_MBOX_IN_OFF + 4U);
+            psc_mailbox_writel(hdr.words[1], PSC_MBOX_IN_OFF + 4U);
 
             /* word2~15: data */
             for (i = 0U; i < cur_len / 4U; i++) {
@@ -217,23 +220,23 @@ bool psc_mailbox_send_msg(uint32_t opcode, const uint8_t *buf, uint32_t len)
     return status;
 }
 
-/**
- * @brief Receive mailbox message
+/*
+ * Receive mailbox message
  *
- * This API can receive a long message in blocks. Each block has the following
- * format:
- *   word0:    opcode
- *   word1:    more flag (1B) + length in bytes (2B) + offset in bytes (2B)
- *   word2~15: receiving buffer
+ * This API receives a large message in segments with header format
+ * psc_mailbox_seg_hdr_t in each one.
  */
-bool psc_mailbox_recv_msg(uint32_t opcode, uint8_t *buf, uint32_t *len)
+bool psc_mailbox_recv_msg(uint32_t opcode, uint16_t *context_id,
+                          uint8_t *buf, uint32_t *len)
 {
+    psc_mailbox_seg_hdr_t hdr = { .more = 1U };
     bool status = false;
 
     if ((NULL != buf) && (len != NULL) && (*len > 0U)) {
-        uint32_t i, cur_len, data, offset = 0U;
+        uint32_t i, data, offset = 0U;
         uint64_t t0 = psc_mailbox_get_usec(), t1;
-        bool more = true;
+
+        *context_id = 0xFFFF;
 
         /* Receive message in a loop. */
         do {
@@ -252,17 +255,17 @@ bool psc_mailbox_recv_msg(uint32_t opcode, uint8_t *buf, uint32_t *len)
             }
 
             /* word0: opcode */
-            data = psc_mailbox_readl(PSC_MBOX_OUT_OFF);
+            hdr.words[0] = psc_mailbox_readl(PSC_MBOX_OUT_OFF);
 
             /* Don't continue if opcode has changed. */
-            if (data != opcode) {
+            if (hdr.words[0] != opcode) {
                 printf("opcode changed\n");
                 status = false;
                 break;
             }
 
             /* word1: more_data(1B) + cur_len(1B) + offset(2B) */
-            data = psc_mailbox_readl(PSC_MBOX_OUT_OFF + 4U);
+            hdr.words[1] = psc_mailbox_readl(PSC_MBOX_OUT_OFF + 4U);
 
             /*
              * Sanity check. The following cases are considered invalid:
@@ -271,12 +274,14 @@ bool psc_mailbox_recv_msg(uint32_t opcode, uint8_t *buf, uint32_t *len)
              * - total length exceeds the buffer length;
              * - 'more' flag is set but current length is not time of 4;
              */
-            cur_len = (data >> 16U) & 0xFFU;
-            more = ((data >> 24U) & 0x1U) ? true : false;
-            if ((cur_len == 0U) ||
-                (cur_len > (MBOX_BUF_NWORDS - 2U) * 4U) ||
-                (offset + cur_len > *len) ||
-                (more && (cur_len & 0x3U))) {
+            if (*context_id == 0xFFFF) {
+                *context_id = hdr.ctx_id;
+            }
+            if ((hdr.ctx_id != *context_id) ||
+                (hdr.cur_len == 0U) ||
+                (hdr.cur_len > (MBOX_BUF_NWORDS - 2U) * 4U) ||
+                (offset + hdr.cur_len > *len) ||
+                (hdr.more && (hdr.cur_len & 0x3U))) {
                 psc_mailbox_out_done();
                 status = false;
                 printf("sanity check failed\n");
@@ -288,8 +293,8 @@ bool psc_mailbox_recv_msg(uint32_t opcode, uint8_t *buf, uint32_t *len)
              * message. If not match, terminate and drop the message if the
              * offset in the message is not 0 (offset 0 is another new message).
              */
-            if (offset != (data & 0xFFFFU)) {
-                if ((data & 0xFFFFU) != 0) {
+            if (offset != hdr.offset) {
+                if (hdr.offset != 0) {
                     psc_mailbox_out_done();
                 }
                 printf("offset mismatch\n");
@@ -298,7 +303,7 @@ bool psc_mailbox_recv_msg(uint32_t opcode, uint8_t *buf, uint32_t *len)
             }
 
             /* word2~15: data */
-            for (i = 0U; i < cur_len / 4U; i++) {
+            for (i = 0U; i < hdr.cur_len / 4U; i++) {
                 data = psc_mailbox_readl(
                                    PSC_MBOX_OUT_OFF + 8U + (0x4U * i));
                 *buf++ = ((uint8_t *)&data)[0];
@@ -308,25 +313,25 @@ bool psc_mailbox_recv_msg(uint32_t opcode, uint8_t *buf, uint32_t *len)
             }
 
             /* Read the remaining data. */
-            if (cur_len & 0x3U) {
+            if (hdr.cur_len & 0x3U) {
                 data = psc_mailbox_readl(
-                               PSC_MBOX_OUT_OFF + 8U + (cur_len & ~0x3U));
-                for (i = 0U; i < (cur_len & 0x3U); i++) {
+                               PSC_MBOX_OUT_OFF + 8U + (hdr.cur_len & ~0x3U));
+                for (i = 0U; i < (hdr.cur_len & 0x3U); i++) {
                     *buf++ = ((uint8_t *)&data)[i];
                 }
             }
 
-            offset += cur_len;
+            offset += hdr.cur_len;
 
             /* Finished this segment. */
             psc_mailbox_out_done();
 
-            if (!more) {
+            if (!hdr.more) {
                 *len = offset;
                 status = true;
                 break;
             }
-        } while (more);
+        } while (hdr.more);
     }
 
     return status;

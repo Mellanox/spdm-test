@@ -7,7 +7,7 @@
 
 all: kmod spdm-emu spdm-proxy
 
-CFLAGS = -Ilib
+CFLAGS = -Ilib -Wall
 
 kmod:
 	cd kmod; make -C /lib/modules/$$(uname -r)/build M=$$PWD modules
@@ -16,7 +16,7 @@ spdm-proxy: spdm-proxy/spdm-proxy.c lib/libpsc_mailbox.a
 	$(CC) $(CFLAGS) $^ -o spdm-proxy/$@
 
 lib/libpsc_mailbox.a : lib/psc_mailbox.c
-	$(CC) -c lib/psc_mailbox.c -o lib/psc_mailbox.o
+	$(CC) $(CFLAGS) -c lib/psc_mailbox.c -o lib/psc_mailbox.o
 	$(AR) rcs lib/libpsc_mailbox.a lib/psc_mailbox.o
 
 spdm-emu:
