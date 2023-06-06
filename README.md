@@ -1,9 +1,9 @@
-                  BlueField-3 SPDM Test
+# BlueField-3 SPDM Test
 
 This README describes how to run spdm-emu on BlueField-3 ARM core. It's
 verified on Ubuntu 22.04.2 LTS (aarch64).
 
-# Source Files
+## Source Files
 <pre>  
 ├── certs  
 │   ├── ipn_root_cert.der        BlueField-3 IPN root certificate  
@@ -23,24 +23,24 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
 └── spdm-proxy                   SPDM proxy between spdm-emu and PSC  
     └── spdm-proxy.c  
 </pre>
-# Clone Source
+## Clone Source
 
 > git clone git@github.com:Mellanox/spdm-test.git  
 > cd spdm-test  
 > git submodule update --init --recursive  
 
-# Apply Patches
+## Apply Patches
 
 > make patches  
 
  Only one patch is available which has been posted to upstream libspdm
  repo. 
 
-# Build
+## Build
 
 > make  
 
-# Run
+## Run
 
 > make run  
 
@@ -52,5 +52,5 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
  ...  
  !!! verify_measurement_signature - PASS !!!
 
-# CORIM/COMID Verification
+## CORIM/COMID Verification
 > TBD
