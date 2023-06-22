@@ -35,7 +35,10 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
 
 ## Build
 
-> make  
+> \# Only needed once to install cmake.  
+> apt install cmake  
+> 
+> make
 
 ## Run
 
