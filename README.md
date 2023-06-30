@@ -26,6 +26,7 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
 ## Clone Source
 
 > git clone git@github.com:Mellanox/spdm-test.git  
+> (or git clone https://github.com/Mellanox/spdm-test.git)  
 > cd spdm-test  
 > git submodule update --init --recursive  
 
@@ -46,7 +47,7 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
 
  It'll start to run 'spdm-proxy' first, then 'spdm_requester_emu'.  
  
- Note: Load kmod/mlxbf-mmio.ko first if Linux kernel-lockdown is enabled.
+ Note: Need to sign and load kmod/mlxbf-mmio.ko first if Linux kernel-lockdown is enabled.
 
  Expected output example:  
  <pre>
