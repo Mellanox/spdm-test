@@ -23,25 +23,27 @@ verified on Ubuntu 22.04.2 LTS (aarch64).
 └── spdm-proxy                   SPDM proxy between spdm-emu and PSC  
     └── spdm-proxy.c  
 </pre>
-## Clone Source
+## 1. Clone Source
+
+Check date with the 'date' command, and fix it with command like 'date -s <Tue Jul  4 13:39:36 EDT 2023>' if needed.
 
 > git clone git@github.com:Mellanox/spdm-test.git  
 > (or git clone https://github.com/Mellanox/spdm-test.git)  
 > cd spdm-test  
 > git submodule update --init --recursive  
 
-## Apply Patches
+## 2. Apply Patches
 
 > make patches  
 
-## Build
+## 3. Build
 
 > \# Only needed once to install cmake.  
 > apt install cmake  
 > 
 > make
 
-## Run
+## 4. Run
 
 > make run  
 
