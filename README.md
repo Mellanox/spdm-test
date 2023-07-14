@@ -40,6 +40,7 @@ Check date with the 'date' command, and fix it with command like 'date -s <Tue J
 
 > \# Only needed once to install cmake.  
 > apt install cmake  
+> (or 'yum install cmake' on centos/redhat based distribution)  
 > 
 > make
 
