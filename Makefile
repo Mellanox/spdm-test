@@ -3,9 +3,9 @@
 # Copyright (c) 2023 NVIDIA Corporation.
 #
 
-.PHONY: all kmod spdm_proxy spdm-emu patches
+.PHONY: all kmod spdm_proxy spdm-emu patches spdm-prepare
 
-all: kmod spdm-emu spdm-proxy
+all: spdm-emu spdm-proxy
 
 CFLAGS = -Ilib -Wall
 PSC_LIB = lib/libpsc_mailbox.a
@@ -20,7 +20,13 @@ $(PSC_LIB) : lib/psc_mailbox.c
 	$(CC) $(CFLAGS) -c lib/psc_mailbox.c -o lib/psc_mailbox.o
 	$(AR) rcs $(PSC_LIB) lib/psc_mailbox.o
 
-spdm-emu:
+spdm-prepare:
+	[ ! -f /usr/bin/aarch64-linux-gnu-gcc -a -f /usr/bin/aarch64-redhat-linux-gcc ] && \
+	  ln -s /usr/bin/aarch64-redhat-linux-gcc /usr/bin/aarch64-linux-gnu-gcc || true
+	[ ! -f /usr/bin/aarch64-linux-gnu-gcc-ar -a -f /usr/bin/gcc-ar ] && \
+	  ln -s /usr/bin/gcc-ar /usr/bin/aarch64-linux-gnu-gcc-ar || true
+
+spdm-emu: spdm-prepare
 	cd spdm-emu; mkdir build; cd build; \
 	  cmake -DARCH=aarch64 -DTOOLCHAIN=AARCH64_GCC -DTARGET=Release -DCRYPTO=mbedtls ..; \
 	  make copy_sample_key; \
@@ -44,5 +50,4 @@ run:
 
 clean:
 	$(RM) spdm-proxy/spdm-proxy lib/*.o lib/*.a *.o
-	cd kmod; make -C /lib/modules/$$(uname -r)/build M=$$PWD modules clean
 	$(RM) -rf spdm-emu/build
