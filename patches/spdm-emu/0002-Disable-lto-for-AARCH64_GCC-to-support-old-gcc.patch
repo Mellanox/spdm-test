@@ -1,0 +1,26 @@
+From 7b719545ce873994e9a07c014cab6e635e5be390 Mon Sep 17 00:00:00 2001
+From: Liming Sun <limings@nvidia.com>
+Date: Fri, 14 Jul 2023 01:02:31 -0400
+Subject: [PATCH] Disable lto for AARCH64_GCC to support old gcc
+
+Signed-off-by: Liming Sun <limings@nvidia.com>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3f4fbf0..be2e2fa 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -237,7 +237,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+ 
+     elseif(TOOLCHAIN STREQUAL "AARCH64_GCC")
+         SET(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
+-        ADD_COMPILE_OPTIONS(-g -fshort-wchar -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -ffunction-sections -fdata-sections -fno-common -Wno-address -fpie -fno-asynchronous-unwind-tables -flto -DUSING_LTO  -Wno-maybe-uninitialized -Wno-uninitialized  -Wno-builtin-declaration-mismatch -Wno-nonnull-compare)
++        ADD_COMPILE_OPTIONS(-g -fshort-wchar -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -ffunction-sections -fdata-sections -fno-common -Wno-address -fpie -fno-asynchronous-unwind-tables -Wno-maybe-uninitialized -Wno-uninitialized  -Wno-builtin-declaration-mismatch -Wno-nonnull-compare)
+         if(GCOV STREQUAL "ON")
+             ADD_COMPILE_OPTIONS(--coverage -fprofile-arcs -ftest-coverage)
+         endif()
+-- 
+2.30.1
+
