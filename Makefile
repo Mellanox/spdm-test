@@ -47,6 +47,7 @@ run:
 	pkill spdm-proxy || true
 	./spdm-proxy/spdm-proxy &
 	cd spdm-emu/build/bin; ./spdm_requester_emu --meas_op ALL
+	pkill spdm-proxy || true
 
 clean:
 	$(RM) spdm-proxy/spdm-proxy lib/*.o lib/*.a *.o
