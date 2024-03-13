@@ -37,9 +37,10 @@ Check date with the 'date' command, and fix it with command like 'date -s <Tue J
 > make patches  
 
  Note: Run the commands below if git error message "Please tell me who you are" is printed at this step.
+ <pre>
   git config --global user.email "you@example.com"
   git config --global user.name "Your Name"
-
+ </pre>
 
 ## 3. Build
 
