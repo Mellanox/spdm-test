@@ -36,6 +36,11 @@ Check date with the 'date' command, and fix it with command like 'date -s <Tue J
 
 > make patches  
 
+ Note: Run the commands below if git error message "Please tell me who you are" is printed at this step.
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+
 ## 3. Build
 
 > \# Only needed once to install cmake.  Run 'apt-get update' as needed if the command below fails.
