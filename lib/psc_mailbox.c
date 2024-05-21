@@ -76,24 +76,21 @@ int psc_mailbox_init(void)
     int fd;
 
     fd = open("/dev/mem", O_RDWR | O_SYNC);
-    if (fd == -1) {
-        perror("");
-        return -1;
+    if (fd != -1) {
+        psc_mbox_mmap = (unsigned long *)mmap(NULL, PSC_MBOX_MAP_SIZE,
+                                              PROT_READ | PROT_WRITE,
+                                              MAP_SHARED | MAP_LOCKED,
+                                              fd, PSC_MBOX_BASE);
+        close(fd);
+
+        if (psc_mbox_mmap != MAP_FAILED)
+            return 0;
     }
-
-    psc_mbox_mmap = (unsigned long *)mmap(NULL, PSC_MBOX_MAP_SIZE,
-                                          PROT_READ | PROT_WRITE,
-                                          MAP_SHARED | MAP_LOCKED,
-                                          fd, PSC_MBOX_BASE);
-    close(fd);
-
-    if (psc_mbox_mmap != MAP_FAILED)
-        return 0;
     psc_mbox_mmap = NULL;
 
     fd = open("/sys/devices/platform/MLNXBF3A:00/psc_mbox", O_RDWR | O_SYNC);
     if (fd == -1) {
-        perror("");
+        perror("fail");
         return -1;
     }
 

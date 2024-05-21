@@ -398,7 +398,13 @@ bool platform_server_routine(uint16_t port_number)
 
 int main(int argc, char *argv[])
 {
-    psc_mailbox_init();
+    int rc;
+
+    rc = psc_mailbox_init();
+    if (rc) {
+        printf("Fail to start spdm-proxy\n");
+        return rc;
+    }
 
     platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
 
