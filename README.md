@@ -48,7 +48,7 @@ Check date with the 'date' command, and fix it with command like 'date -s <Tue J
 
   Note:  
     On Ubuntu, run 'apt-get update' and 'apt install cmake' to install cmake if needed.  
-    On centos/redhat based distribution, it would be 'yum install cmake' for cmake, or 'yum groupinstall "Development Tools' for other tools.
+    On centos/redhat based distribution, it would be 'yum install cmake' for cmake, or 'yum groupinstall "Development Tools" for gcc development tools.
 
 ## 4. Run
 
