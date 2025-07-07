@@ -45,6 +45,7 @@ patches:
 
 run:
 	pkill spdm-proxy || true
+	[ ! -e /dev/mem ] && insmod kmod/mlxbf-mmio.ko >&/dev/null || true
 	./spdm-proxy/spdm-proxy &
 	cd spdm-emu/build/bin; ./spdm_requester_emu --meas_op ALL
 	pkill spdm-proxy || true
