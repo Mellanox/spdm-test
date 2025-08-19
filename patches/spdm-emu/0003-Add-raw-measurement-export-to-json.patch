@@ -1,0 +1,47 @@
+From 4b3f002086aa03b166be45693b413e2c2c9b5f14 Mon Sep 17 00:00:00 2001
+From: Liming Sun <limings@nvidia.com>
+Date: Tue, 19 Aug 2025 19:23:27 -0400
+Subject: [PATCH] Add raw measurement export to json
+
+Signed-off-by: Liming Sun <limings@nvidia.com>
+---
+ libspdm                                               | 2 +-
+ spdm_emu/spdm_device_verifier_tool/SpdmMeasurement.py | 8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/libspdm b/libspdm
+index 9725b25..06babae 160000
+--- a/libspdm
++++ b/libspdm
+@@ -1 +1 @@
+-Subproject commit 9725b25b29e1a46b7b9462404e0b16ddaa6cbec7
++Subproject commit 06babaefef85727801ef80d164c6ddbf78ebfb97
+diff --git a/spdm_emu/spdm_device_verifier_tool/SpdmMeasurement.py b/spdm_emu/spdm_device_verifier_tool/SpdmMeasurement.py
+index 7b39420..908c5c7 100644
+--- a/spdm_emu/spdm_device_verifier_tool/SpdmMeasurement.py
++++ b/spdm_emu/spdm_device_verifier_tool/SpdmMeasurement.py
+@@ -52,6 +52,7 @@ class ParseMeasurement:
+         self.evidences = {'evidences': []}
+         self.evidence_type1 = {'evidence': {'index': 0, 'digest': [0, 0]}}
+         self.evidence_type2 = {'evidence': {'index': 0, 'svn': ''}}
++        self.evidence_type3 = {'evidence': {'index': 0, 'raw': ''}}
+
+     def append_evidence(self, evidence):
+         self.evidences['evidences'].append(evidence)
+@@ -75,6 +76,13 @@ class ParseMeasurement:
+                     evidence['evidence']['index'] = measurement.index
+                     evidence['evidence']['svn'] = c_uint64.from_buffer(self.bin_data, offset + 3 * sizeof(c_uint8) + 2 * sizeof(c_uint16)).value
+                     self.append_evidence(evidence)
++                else:
++                    evidence = deepcopy(self.evidence_type3)
++                    evidence['evidence']['index'] = measurement.index
++                    evidence['evidence']['raw'] = \
++                        bytearray.hex(self.bin_data[offset + 3 * sizeof(c_uint8) + 2 * sizeof(c_uint16): offset + \
++                                        2 * sizeof(c_uint8) + sizeof(c_uint16) + measurement.measurement_size])
++                    self.append_evidence(evidence)
+
+             offset += 2 * sizeof(c_uint8) + sizeof(c_uint16) + measurement.measurement_size
+
+--
+1.8.3.1
+

@@ -1,13 +1,13 @@
-From f71ad31e03556db0c17cc85659a7fe4e14523cb6 Mon Sep 17 00:00:00 2001
+From 39ca9bcaf2ae3534f996bfa30053f914b7f24768 Mon Sep 17 00:00:00 2001
 From: Liming Sun <limings@nvidia.com>
 Date: Tue, 6 Jun 2023 14:28:03 -0400
 Subject: [PATCH] spdm_emu/spdm_requester_emu: Save cert chain and measurement
 
 Signed-off-by: Liming Sun <limings@nvidia.com>
 ---
- libspdm                                                   | 2 +-
- .../spdm_requester_emu/spdm_requester_authentication.c    | 8 ++++++++
- spdm_emu/spdm_requester_emu/spdm_requester_measurement.c  | 5 +++++
+ libspdm                                                     | 2 +-
+ spdm_emu/spdm_requester_emu/spdm_requester_authentication.c | 8 ++++++++
+ spdm_emu/spdm_requester_emu/spdm_requester_measurement.c    | 5 +++++
  3 files changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/libspdm b/libspdm
@@ -67,5 +67,5 @@ index 56c6337..0118e2d 100644
  }
  
 -- 
-2.30.1
+1.8.3.1
 

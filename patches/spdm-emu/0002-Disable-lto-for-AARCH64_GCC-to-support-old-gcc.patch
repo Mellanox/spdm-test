@@ -1,4 +1,4 @@
-From 7b719545ce873994e9a07c014cab6e635e5be390 Mon Sep 17 00:00:00 2001
+From 26b9512e3e80119cb6790470ffdc6ef5617ce6bd Mon Sep 17 00:00:00 2001
 From: Liming Sun <limings@nvidia.com>
 Date: Fri, 14 Jul 2023 01:02:31 -0400
 Subject: [PATCH] Disable lto for AARCH64_GCC to support old gcc
@@ -22,5 +22,5 @@ index 3f4fbf0..be2e2fa 100644
              ADD_COMPILE_OPTIONS(--coverage -fprofile-arcs -ftest-coverage)
          endif()
 -- 
-2.30.1
+1.8.3.1
 
